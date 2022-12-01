@@ -39,21 +39,23 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
 /**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
+ * This file contains an minimal example of a Linear "OpMode". An OpMode is a
+ * 'program' that runs in either the autonomous or the teleop period of an FTC
+ * match. The names of OpModes appear on the menu of the FTC Driver Station.
+ * When a selection is made from the menu, the corresponding OpMode class is
+ * instantiated on the Robot Controller and executed.
  *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
+ * This particular OpMode just executes a basic Tank Drive Teleop for a two
+ * wheeled robot It includes all the skeletal structure that all linear OpModes
+ * contain.
  *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ * Use Android Studio to Copy this Class, and Paste it into your team's code
+ * folder with a new name. Remove or comment out the @Disabled line to add this
+ * opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="RobotTest", group="Linear Opmode")
+@TeleOp(name = "RobotTest", group = "Linear Opmode")
 
 public class RobotTest extends LinearOpMode {
 
@@ -67,88 +69,114 @@ public class RobotTest extends LinearOpMode {
     private Servo grabber = null;
     private DcMotor linearSlideLeft = null;
     private DcMotor linearSlideRight = null;
-    
-    @Override
-    public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        frontLeft  = hardwareMap.get(DcMotor.class, "frontLeft");
+    public void initialize() {
+        // Initialize the hardware variables. Note that the strings used here as
+        // parameters to 'get' must correspond to the names assigned during the
+        // robot configuration step (using the FTC Robot Controller app on the
+        // phone).
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft  = hardwareMap.get(DcMotor.class, "backLeft");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         // upDown = hardwareMap.get(DcMotor.class, "upDown");
         grabber = hardwareMap.get(Servo.class, "armyArmy");
-        // linearSlideLeft = hardwareMap.get(.class, "linearSlideLeft");
-        // linearSlideRight = hardwareMap.get(TetrixMotor.class, "linearSlideRight");
-        linearSlideLeft = hardwareMap.get(DcMotor.class,"linearSlideLeft");
-        linearSlideRight = hardwareMap.get(DcMotor.class,"linearSlideRight");
+        linearSlideLeft = hardwareMap.get(DcMotor.class, "linearSlideLeft");
+        linearSlideRight = hardwareMap.get(DcMotor.class, "linearSlideRight");
 
         grabber.setPosition(0.6);
         grabber.setDirection(Servo.Direction.REVERSE);
-    
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
+
+        // To drive forward, most robots need the motor on one side to be
+        // reversed, because the axles point in opposite directions. Pushing the
+        // left stick forward MUST make robot go forward. So adjust these two
+        // lines based on your first test drive. Note: The settings here assume
+        // direct drive on left and right wheels. Gear Reduction or 90 Deg
+        // drives may require direction flips
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
         // upDown.setDirection(DcMotor.Direction.FORWARD);
-        // linearSlideLeft.setDirection(TetrixMotor.Direction.FORWARD);
-        // linearSlideRight.setDirection(TetrixMotor.Direction.FORWARD);
         linearSlideLeft.setDirection(DcMotor.Direction.FORWARD);
-        linearSlideRight.setDirection(DcMotor.Direction.FORWARD);
-        
-        
-        
+        // this needs to be reverse because the motors are flipped
+        linearSlideRight.setDirection(DcMotor.Direction.REVERSE);
+    }
+
+    // This is the main gameloop for the remote control gamemode. It waits for
+    // the driver to press PLAY and then runs until he presses STOP.
+    @Override
+    public void runOpMode() {
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+        initialize();// initialize motors
 
         // Wait for the game to start (driver presses PLAY)
-        // :)
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            handleDriving();
+            handleLifting();
+            handleGrabbing();
 
-            double y = gamepad1.left_stick_y; //foward back
-            double x = gamepad1.left_stick_x; //strafe
-            double rx = -gamepad1.right_stick_x; //rotation
-            
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = -((y + x + rx) / denominator);
-            double backLeftPower = -((y - x + rx) / denominator);
-            double frontRightPower = ((y - x - rx) / denominator);
-            double backRightPower = ((y + x - rx) / denominator);
-            
-            frontLeft.setPower(frontLeftPower);
-            backLeft.setPower(backLeftPower);
-            frontRight.setPower(frontRightPower);
-            backRight.setPower(backRightPower);
-            
-            if(gamepad1.x) {
-                grabber.setPosition(1);
-            }
-            if(gamepad1.y) {
-                grabber.setPosition(0.6);
-            }
-            if(gamepad1.b) {
-                grabber.setPosition(0);
-            }
-            
-            // upDown.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
-            
-            if(gamepad1.a){
-                linearSlideLeft.setPower(0.6);
-                linearSlideRight.setPower(0.6);
-            }
-            
-            
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
     }
+
+    // Handle grabbing.
+    public void handleGrabbing() {
+        if (gamepad1.x) {
+            grabber.setPosition(1);
+        }
+        if (gamepad1.y) {
+            grabber.setPosition(0.6);
+        }
+        if (gamepad1.b) {
+            grabber.setPosition(0);
+        }
+
+    }
+
+    // Handle lifting.
+    //
+    // Lifting is controlled with the left and right triggers.
+    public void handleLifting() {
+        // set the power for the lifter motor, based on the left and right trigger.
+        // upDown.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
+        if (gamepad1.a) {
+            linearSlideLeft.setPower(0.6);
+            linearSlideRight.setPower(0.6);
+        } else {
+            linearSlideLeft.setPower(0);
+            linearSlideRight.setPower(0);
+        }
+    }
+
+    // Handle driving the robot.
+    //
+    // Gamepad left stick is responsible for forward/back and strafing
+    // left/right, and the right stick is responsible for turning.
+    public void handleDriving() {
+        double y = gamepad1.left_stick_y; // foward/back
+        double x = gamepad1.left_stick_x; // strafe
+        double rx = -gamepad1.right_stick_x; // rotation
+
+        // Find the correct power for each motor
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = -((y + x + rx) / denominator);
+        double backLeftPower = -((y - x + rx) / denominator);
+        double frontRightPower = ((y - x - rx) / denominator);
+        double backRightPower = ((y + x - rx) / denominator);
+
+        // Set the power of each motor
+        frontLeft.setPower(frontLeftPower);
+        backLeft.setPower(backLeftPower);
+        frontRight.setPower(frontRightPower);
+        backRight.setPower(backRightPower);
+    }
+
 }

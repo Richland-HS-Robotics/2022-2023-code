@@ -39,22 +39,24 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
 /**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
+ * This file contains an minimal example of a Linear "OpMode". An OpMode is a
+ * 'program' that runs in either the autonomous or the teleop period of an FTC
+ * match. The names of OpModes appear on the menu of the FTC Driver Station.
+ * When a selection is made from the menu, the corresponding OpMode class is
+ * instantiated on the Robot Controller and executed.
  *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
+ * This particular OpMode just executes a basic Tank Drive Teleop for a two
+ * wheeled robot It includes all the skeletal structure that all linear OpModes
+ * contain.
  *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ * Use Android Studio to Copy this Class, and Paste it into your team's code
+ * folder with a new name. Remove or comment out the @Disabled line to add this
+ * opmode to the Driver Station OpMode list
  */
-@Autonomous(name="AutoTest", group="Linear Opmode")
 
-public class AutoTest extends LinearOpMode {
+@Autonomous(name = "AutoTest", group = "Linear Opmode")
+public class RobotTest extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -62,36 +64,52 @@ public class AutoTest extends LinearOpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DcMotor upDown = null;
-    private Servo armyArmy = null;
+    // private DcMotor upDown = null;
+    private Servo grabber = null;
+    private DcMotor linearSlideLeft = null;
+    private DcMotor linearSlideRight = null;
 
+    public void initialize() {
+        // Initialize the hardware variables. Note that the strings used here as
+        // parameters to 'get' must correspond to the names assigned during the
+        // robot configuration step (using the FTC Robot Controller app on the
+        // phone).
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        // upDown = hardwareMap.get(DcMotor.class, "upDown");
+        grabber = hardwareMap.get(Servo.class, "armyArmy");
+        linearSlideLeft = hardwareMap.get(DcMotor.class, "linearSlideLeft");
+        linearSlideRight = hardwareMap.get(DcMotor.class, "linearSlideRight");
+
+        grabber.setPosition(0.6);
+        grabber.setDirection(Servo.Direction.REVERSE);
+
+        // To drive forward, most robots need the motor on one side to be
+        // reversed, because the axles point in opposite directions. Pushing the
+        // left stick forward MUST make robot go forward. So adjust these two
+        // lines based on your first test drive. Note: The settings here assume
+        // direct drive on left and right wheels. Gear Reduction or 90 Deg
+        // drives may require direction flips
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        // upDown.setDirection(DcMotor.Direction.FORWARD);
+        linearSlideLeft.setDirection(DcMotor.Direction.FORWARD);
+        // this needs to be reverse because the motors are flipped
+        linearSlideRight.setDirection(DcMotor.Direction.REVERSE);
+    }
+
+    // This is the main gameloop for the autonomous control gamemode. It waits
+    // for start, moves backwards for 1 second, and stops.
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        frontLeft  = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft  = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
-        upDown = hardwareMap.get(DcMotor.class, "upDown");
-        armyArmy = hardwareMap.get(Servo.class, "armyArmy");
-
-        armyArmy.setPosition(0.6);
-        armyArmy.setDirection(Servo.Direction.REVERSE);
-    
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-        upDown.setDirection(DcMotor.Direction.FORWARD);
-
+        initialize();// initialize motors
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -101,12 +119,13 @@ public class AutoTest extends LinearOpMode {
         frontRight.setPower(-1);
         backLeft.setPower(-1);
         backRight.setPower(-1);
-        
+
         sleep(1000);
-        
+
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
     }
+
 }
