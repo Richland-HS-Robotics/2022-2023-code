@@ -65,10 +65,12 @@ public class RobotTest extends LinearOpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    // private DcMotor upDown = null;
+    private DcMotor upDown = null;
     private Servo grabber = null;
     private DcMotor linearSlideLeft = null;
     private DcMotor linearSlideRight = null;
+    private double servoPosition =0.0;
+    private double armPosition = 0.0; // arm starts down
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as
@@ -79,13 +81,13 @@ public class RobotTest extends LinearOpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        // upDown = hardwareMap.get(DcMotor.class, "upDown");
-        grabber = hardwareMap.get(Servo.class, "armyArmy");
+        upDown = hardwareMap.get(DcMotor.class, "upDown");
+        grabber = hardwareMap.get(Servo.class, "grabServo");
         linearSlideLeft = hardwareMap.get(DcMotor.class, "linearSlideLeft");
         linearSlideRight = hardwareMap.get(DcMotor.class, "linearSlideRight");
 
-        grabber.setPosition(0.6);
-        grabber.setDirection(Servo.Direction.REVERSE);
+        // grabber.setPosition(0.0);
+        // grabber.setDirection(Servo.Direction.REVERSE);
 
         // To drive forward, most robots need the motor on one side to be
         // reversed, because the axles point in opposite directions. Pushing the
@@ -129,31 +131,39 @@ public class RobotTest extends LinearOpMode {
 
     // Handle grabbing.
     public void handleGrabbing() {
+        grabber.setPosition(servoPosition);
+        servoPosition+=0.1;
         if (gamepad1.x) {
-            grabber.setPosition(1);
+            telemetry.addData("Keypad: ","X");
+            telemetry.update();
+            grabber.setPosition(1.0); // close
         }
-        if (gamepad1.y) {
-            grabber.setPosition(0.6);
+        if (gamepad1.a) {
+            grabber.setPosition(0.6); // medium
         }
-        if (gamepad1.b) {
-            grabber.setPosition(0);
+        if (gamepad1.b) {  // open
+            grabber.setPosition(0.0); //
         }
 
     }
 
     // Handle lifting.
     //
-    // Lifting is controlled with the left and right triggers.
+    // Lifting is controlled with the right joystick y axis.
     public void handleLifting() {
         // set the power for the lifter motor, based on the left and right trigger.
-        // upDown.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
-        if (gamepad1.a) {
-            linearSlideLeft.setPower(0.6);
-            linearSlideRight.setPower(0.6);
-        } else {
-            linearSlideLeft.setPower(0);
-            linearSlideRight.setPower(0);
-        }
+        armPosition+=gamepad1.right_stick_y;
+        upDown.setPower(gamepad1.right_stick_y);
+        linearSlideLeft.setPower(gamepad1.right_stick_y);
+        linearSlideRight.setPower(gamepad1.right_stick_y);
+        
+        // if (gamepad1.right_stick_y > 0) { // up
+        //     linearSlideLeft.setPower(0.6);
+        //     linearSlideRight.setPower(0.6);
+        // } else {
+        //     linearSlideLeft.setPower(0);
+        //     linearSlideRight.setPower(0);
+        // }
     }
 
     // Handle driving the robot.

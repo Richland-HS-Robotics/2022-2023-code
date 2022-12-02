@@ -56,7 +56,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 @Autonomous(name = "AutoTest", group = "Linear Opmode")
-public class RobotTest extends LinearOpMode {
+public class AutoTest extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
