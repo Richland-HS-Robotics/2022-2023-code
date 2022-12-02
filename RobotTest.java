@@ -30,7 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.hardware.motors.TetrixMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -55,9 +55,8 @@ import com.qualcomm.robotcore.util.Range;
  * opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "RobotTest", group = "Linear Opmode")
-
-public class RobotTest extends LinearOpMode {
+@Autonomous(name = "AutoTest", group = "Linear Opmode")
+public class AutoTest extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -65,12 +64,10 @@ public class RobotTest extends LinearOpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DcMotor upDown = null;
+    // private DcMotor upDown = null;
     private Servo grabber = null;
     private DcMotor linearSlideLeft = null;
     private DcMotor linearSlideRight = null;
-    private double servoPosition =0.0;
-    private double armPosition = 0.0; // arm starts down
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as
@@ -81,13 +78,13 @@ public class RobotTest extends LinearOpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        upDown = hardwareMap.get(DcMotor.class, "upDown");
-        grabber = hardwareMap.get(Servo.class, "grabServo");
+        // upDown = hardwareMap.get(DcMotor.class, "upDown");
+        grabber = hardwareMap.get(Servo.class, "armyArmy");
         linearSlideLeft = hardwareMap.get(DcMotor.class, "linearSlideLeft");
         linearSlideRight = hardwareMap.get(DcMotor.class, "linearSlideRight");
 
-        // grabber.setPosition(0.0);
-        // grabber.setDirection(Servo.Direction.REVERSE);
+        grabber.setPosition(0.6);
+        grabber.setDirection(Servo.Direction.REVERSE);
 
         // To drive forward, most robots need the motor on one side to be
         // reversed, because the axles point in opposite directions. Pushing the
@@ -105,88 +102,30 @@ public class RobotTest extends LinearOpMode {
         linearSlideRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    // This is the main gameloop for the remote control gamemode. It waits for
-    // the driver to press PLAY and then runs until he presses STOP.
+    // This is the main gameloop for the autonomous control gamemode. It waits
+    // for start, moves backwards for 1 second, and stops.
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         initialize();// initialize motors
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-            handleDriving();
-            handleLifting();
-            handleGrabbing();
+        frontLeft.setPower(-1);
+        frontRight.setPower(-1);
+        backLeft.setPower(-1);
+        backRight.setPower(-1);
 
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
-        }
-    }
+        sleep(1000);
 
-    // Handle grabbing.
-    public void handleGrabbing() {
-        grabber.setPosition(servoPosition);
-        servoPosition+=0.1;
-        if (gamepad1.x) {
-            telemetry.addData("Keypad: ","X");
-            telemetry.update();
-            grabber.setPosition(1.0); // close
-        }
-        if (gamepad1.a) {
-            grabber.setPosition(0.6); // medium
-        }
-        if (gamepad1.b) {  // open
-            grabber.setPosition(0.0); //
-        }
-
-    }
-
-    // Handle lifting.
-    //
-    // Lifting is controlled with the right joystick y axis.
-    public void handleLifting() {
-        // set the power for the lifter motor, based on the left and right trigger.
-        armPosition+=gamepad1.right_stick_y;
-        upDown.setPower(gamepad1.right_stick_y);
-        linearSlideLeft.setPower(gamepad1.right_stick_y);
-        linearSlideRight.setPower(gamepad1.right_stick_y);
-        
-        // if (gamepad1.right_stick_y > 0) { // up
-        //     linearSlideLeft.setPower(0.6);
-        //     linearSlideRight.setPower(0.6);
-        // } else {
-        //     linearSlideLeft.setPower(0);
-        //     linearSlideRight.setPower(0);
-        // }
-    }
-
-    // Handle driving the robot.
-    //
-    // Gamepad left stick is responsible for forward/back and strafing
-    // left/right, and the right stick is responsible for turning.
-    public void handleDriving() {
-        double y = gamepad1.left_stick_y; // foward/back
-        double x = gamepad1.left_stick_x; // strafe
-        double rx = -gamepad1.right_stick_x; // rotation
-
-        // Find the correct power for each motor
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = -((y + x + rx) / denominator);
-        double backLeftPower = -((y - x + rx) / denominator);
-        double frontRightPower = ((y - x - rx) / denominator);
-        double backRightPower = ((y + x - rx) / denominator);
-
-        // Set the power of each motor
-        frontLeft.setPower(frontLeftPower);
-        backLeft.setPower(backLeftPower);
-        frontRight.setPower(frontRightPower);
-        backRight.setPower(backRightPower);
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
     }
 
 }
