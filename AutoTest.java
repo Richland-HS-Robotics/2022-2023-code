@@ -64,7 +64,7 @@ public class AutoTest extends LinearOpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    // private DcMotor upDown = null;
+    private DcMotor upDown = null;
     private Servo grabber = null;
     private DcMotor linearSlideLeft = null;
     private DcMotor linearSlideRight = null;
@@ -78,8 +78,8 @@ public class AutoTest extends LinearOpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        // upDown = hardwareMap.get(DcMotor.class, "upDown");
-        grabber = hardwareMap.get(Servo.class, "armyArmy");
+        upDown = hardwareMap.get(DcMotor.class, "upDown");
+        grabber = hardwareMap.get(Servo.class, "grabServo");
         linearSlideLeft = hardwareMap.get(DcMotor.class, "linearSlideLeft");
         linearSlideRight = hardwareMap.get(DcMotor.class, "linearSlideRight");
 
@@ -93,9 +93,9 @@ public class AutoTest extends LinearOpMode {
         // direct drive on left and right wheels. Gear Reduction or 90 Deg
         // drives may require direction flips
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
         // upDown.setDirection(DcMotor.Direction.FORWARD);
         linearSlideLeft.setDirection(DcMotor.Direction.FORWARD);
         // this needs to be reverse because the motors are flipped
@@ -115,10 +115,13 @@ public class AutoTest extends LinearOpMode {
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
-        frontLeft.setPower(-1);
-        frontRight.setPower(-1);
-        backLeft.setPower(-1);
-        backRight.setPower(-1);
+        double speed=-0.4;
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(speed);
+        backRight.setPower(speed);
+        grabber.setPosition(0.6); // medium (gripping the cone from the inside)
+
 
         sleep(1000);
 
