@@ -71,6 +71,11 @@ public class RobotTest extends LinearOpMode {
     private DcMotor linearSlideRight = null;
     private double servoPosition =0.0;
     private boolean doLinearSlideLeftRight = false;
+    private enum controlSchemes{
+        RAISE_WITH_STICK,
+        RAISE_WITH_TRIGGER,
+    }
+    private controlSchemes controlScheme = controlSchemes.RAISE_WITH_TRIGGER;
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as
@@ -138,7 +143,7 @@ public class RobotTest extends LinearOpMode {
             grabber.setPosition(0.7); // way open
         }
         if (gamepad1.a) {
-            grabber.setPosition(0.53); // medium (gripping the cone from the inside)
+            grabber.setPosition(0.6); // medium (gripping the cone from the inside)
         }
         if (gamepad1.b) {  // open
             grabber.setPosition(0.45); // close (not gripping the cone)
@@ -150,13 +155,17 @@ public class RobotTest extends LinearOpMode {
     //
     // Lifting is controlled with the right joystick y axis.
     public void handleLifting() {
-        if(gamepad1.right_trigger > 0.1){
-            // set the power for the lifter motor, based on the left and right trigger.
-            upDown.setPower(gamepad1.right_stick_y);
-            if(doLinearSlideLeftRight){
-                linearSlideLeft.setPower(gamepad1.right_stick_y);
-                linearSlideRight.setPower(gamepad1.right_stick_y);
+        if(controlScheme==controlSchemes.RAISE_WITH_STICK){
+            if(gamepad1.right_trigger > 0.1){
+                // set the power for the lifter motor, based on the left and right trigger.
+                upDown.setPower(gamepad1.right_stick_y);
+                if(doLinearSlideLeftRight){
+                    linearSlideLeft.setPower(gamepad1.right_stick_y);
+                    linearSlideRight.setPower(gamepad1.right_stick_y);
+                }
             }
+        }else if(controlScheme==controlSchemes.RAISE_WITH_TRIGGER){
+            upDown.setPower(gamepad1.left_trigger-gamepad1.right_trigger);
         }
         
         
@@ -185,14 +194,21 @@ public class RobotTest extends LinearOpMode {
         double frontRightPower = ((y - x - rx) / denominator);
         double backRightPower = ((y + x - rx) / denominator);
 
-        // if the right bumper is down, lock the movement.
-        if(!(gamepad1.right_trigger>0.1)){
+        if(controlScheme==controlSchemes.RAISE_WITH_STICK){
+            // if the right bumper is down, lock the movement.
+            if(!(gamepad1.right_trigger>0.1)){
+                // Set the power of each motor
+                frontLeft.setPower(frontLeftPower);
+                backLeft.setPower(backLeftPower);
+                frontRight.setPower(frontRightPower);
+                backRight.setPower(backRightPower);
+            }
+        }else if(controlScheme == controlSchemes.RAISE_WITH_TRIGGER){
             // Set the power of each motor
-            frontLeft.setPower(frontLeftPower);
-            backLeft.setPower(backLeftPower);
-            frontRight.setPower(frontRightPower);
-            backRight.setPower(backRightPower);
+                frontLeft.setPower(frontLeftPower);
+                backLeft.setPower(backLeftPower);
+                frontRight.setPower(frontRightPower);
+                backRight.setPower(backRightPower);
         }
     }
-
 }
