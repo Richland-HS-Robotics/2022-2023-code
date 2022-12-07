@@ -17,6 +17,8 @@ Use [ftc_http](https://github.com/TheLostLambda/ftc_http).
 - [ ] Setup the claw and lifting system
 - [ ] Work on an autonomous mode
   - Potentially some sensors/cameras and image processing? (See [here](http://ftc-docs.firstinspires.org/programming_resources/vision/tensorflow_pp_2022/tensorflow_pp_2022.html))
+	- See <https://www.youtube.com/watch?v=Y0OZCdOLhwo&ab_channel=AaronKennedy> for driving distances.
+	- See [Roadrunner](https://learnroadrunner.com/).
 
 ## Documentation
 
