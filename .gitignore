@@ -85,3 +85,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# The dropdown for deploying to a device.  Unneeded.
+deploymentTargetDropDown.xml
